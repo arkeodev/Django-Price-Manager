@@ -13,18 +13,22 @@ services:
       - "8000:8000"
     depends_on:
       - redis
-    env_file:
-      - .env
+    environment:
+      - CELERY_BROKER_URL = 'redis://redis:6379/0'
+      - CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+      - EVENTS_API_BASE_URL = "http://web:8000"
 
   celery:
     build: .
-    command: celery -A roompricegenie worker --loglevel=info -c 2  # Reduce the number of workers to 2
+    command: celery -A roompricegenie worker --loglevel=info -c 2  # Number of workers
     depends_on:
       - redis
     volumes:
       - .:/app
-    env_file:
-      - .env
+    environment:
+      - CELERY_BROKER_URL = 'redis://redis:6379/0'
+      - CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+      - EVENTS_API_BASE_URL = "http://web:8000"
 
   celery-beat:
     build: .
@@ -33,5 +37,7 @@ services:
       - redis
     volumes:
       - .:/app
-    env_file:
-      - .env
+    environment:
+      - CELERY_BROKER_URL = 'redis://redis:6379/0'
+      - CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+      - EVENTS_API_BASE_URL = "http://web:8000"

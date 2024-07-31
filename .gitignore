@@ -119,15 +119,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -165,9 +156,6 @@ cython_debug/
 
 # Mac OS files
 **/.DS_Store
-
-# Environment variables
-.env
 
 # milvus files
 embedEtcd.yaml

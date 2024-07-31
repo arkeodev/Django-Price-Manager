@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:alpine
+
+  web:
+    build: .
+    command: gunicorn roompricegenie.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+  celery:
+    build: .
+    command: celery -A roompricegenie worker --loglevel=info -c 2  # Reduce the number of workers to 2
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+  celery-beat:
+    build: .
+    command: celery -A roompricegenie beat --loglevel=info
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    env_file:
+      - .env

@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "roompricegenie"
+version = "0.1.0"
+description = "Booking curve analysis for RoomPriceGenie"
+authors = ["Kenan Agyel <kenanagyel@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11, <3.13"
+Django = "^5.0.7"
+djangorestframework = "^3.15.2"
+celery = "^5.4.0"
+redis = "^5.0.8"
+pandas = "^2.2.2"
+setuptools = "^72.1.0"
+gunicorn = "^22.0.0"
+drf-yasg = "^1.21.7"
+requests-mock = "^1.12.1"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+black = "^24.4.2"
+mypy = "^1.11.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.2"
+pytest-django = "^4.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

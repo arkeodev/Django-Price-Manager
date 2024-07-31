@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import requests
 from celery import shared_task
+from django.conf import settings
 
 logger = logging.getLogger("data_provider")
 
@@ -19,14 +20,19 @@ def simulate_event_creation():
     invalid_rows = []
     invalid_uuid_count = 0
 
+    # Fetch the base URL from Django settings with a default value
+    base_url = getattr(
+        settings, "EVENTS_API_BASE_URL", "http://127.0.0.1:8000/api/data_provider"
+    )
+
     for index, row in data.iterrows():
         try:
-            response = requests.post(
-                "http://localhost:8000/events/", json=row.to_dict()
-            )
+            response = requests.post(f"{base_url}/events/", json=row.to_dict())
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to POST event: {row['id']} - {e}")
+            logger.error(
+                f"Failed to POST event: {row['id']} - {e}\nData: {row.to_dict()}\nResponse: {e.response.content if e.response else 'No response content'}"
+            )
             invalid_rows.append(row)
             invalid_uuid_count += 1
             continue

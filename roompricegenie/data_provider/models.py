@@ -12,7 +12,7 @@ class Event(models.Model):
     - hotel_id: ID of the hotel where the event occurred.
     - timestamp: Timestamp of the event.
     - rpg_status: Status of the event (1 for booking, 2 for cancellation).
-    - room_id: UUID of the room associated with the event.
+    - room_reservation_id: UUID of the room associated with the event.
     - night_of_stay: Date of stay for the booking event.
     """
 
@@ -27,7 +27,7 @@ class Event(models.Model):
     hotel_id = models.IntegerField()
     timestamp = models.DateTimeField()
     rpg_status = models.IntegerField(choices=RPG_STATUS_CHOICES)
-    room_id = models.UUIDField(default=uuid.uuid4)
+    room_reservation_id = models.UUIDField(default=uuid.uuid4)
     night_of_stay = models.DateField()
 
     def __str__(self) -> str:

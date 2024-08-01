@@ -110,7 +110,7 @@ def update_dashboard(date, event, period):
             defaults={"booking_count": updated_count}, **filter_kwargs
         )
         record_type = "created" if created else "updated"
-        logger.debug(
+        logger.info(
             f"{record_type.capitalize()} {period} record for {filter_kwargs} with updated count {updated_count}"
         )
     except Exception as e:

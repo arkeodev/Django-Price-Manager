@@ -1,14 +1,68 @@
-from rest_framework import status
-from rest_framework.decorators import api_view
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from .models import Event
 from .serializers import EventSerializer
 
 
-@api_view(["GET", "POST"])
-def events_view(request):
-    if request.method == "GET":
+class EventView(generics.ListCreateAPIView):
+    serializer_class = EventSerializer
+
+    @swagger_auto_schema(
+        operation_description="Get or create events",
+        manual_parameters=[
+            openapi.Parameter(
+                "hotel_id",
+                openapi.IN_QUERY,
+                description="ID of the hotel",
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "updated_gte",
+                openapi.IN_QUERY,
+                description="Events updated after or at this date",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_DATETIME,
+            ),
+            openapi.Parameter(
+                "updated_lte",
+                openapi.IN_QUERY,
+                description="Events updated before or at this date",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_DATETIME,
+            ),
+            openapi.Parameter(
+                "rpg_status",
+                openapi.IN_QUERY,
+                description="Status of the event (1 for booking, 2 for cancellation)",
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "room_reservation_id",
+                openapi.IN_QUERY,
+                description="UUID of the room reservation",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_UUID,
+            ),
+            openapi.Parameter(
+                "night_of_stay_gte",
+                openapi.IN_QUERY,
+                description="Night of stay after or on this date",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_DATE,
+            ),
+            openapi.Parameter(
+                "night_of_stay_lte",
+                openapi.IN_QUERY,
+                description="Night of stay before or on this date",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_DATE,
+            ),
+        ],
+    )
+    def get(self, request, *args, **kwargs):
         hotel_id = request.query_params.get("hotel_id")
         updated_gte = request.query_params.get("updated__gte")
         updated_lte = request.query_params.get("updated__lte")
@@ -37,7 +91,10 @@ def events_view(request):
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
 
-    elif request.method == "POST":
+    @swagger_auto_schema(
+        operation_description="Create a new event", request_body=EventSerializer
+    )
+    def post(self, request, *args, **kwargs):
         serializer = EventSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

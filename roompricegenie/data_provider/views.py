@@ -38,6 +38,7 @@ class EventView(generics.ListCreateAPIView):
                 openapi.IN_QUERY,
                 description="Status of the event (1 for booking, 2 for cancellation)",
                 type=openapi.TYPE_INTEGER,
+                enum=[1, 2],
             ),
             openapi.Parameter(
                 "room_reservation_id",

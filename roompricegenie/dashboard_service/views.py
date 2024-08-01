@@ -1,5 +1,3 @@
-# views.py
-from django.db.models import Sum
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, response
@@ -25,6 +23,7 @@ class DashboardView(generics.ListAPIView):
                 in_=openapi.IN_QUERY,
                 description="Period of the data ('month' or 'day')",
                 type=openapi.TYPE_STRING,
+                enum=["month", "day"],
             ),
             openapi.Parameter(
                 "year",
@@ -35,8 +34,15 @@ class DashboardView(generics.ListAPIView):
             openapi.Parameter(
                 "month",
                 in_=openapi.IN_QUERY,
-                description="Month of the data to retrieve",
+                description="Month of the data to retrieve, required if period is 'month'",
                 type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "day",
+                in_=openapi.IN_QUERY,
+                description="Day of the data to retrieve, optional, only relevant if period is 'day'",
+                type=openapi.TYPE_INTEGER,
+                required=False,
             ),
         ],
     )
@@ -45,12 +51,19 @@ class DashboardView(generics.ListAPIView):
         period = request.query_params.get("period")
         year = request.query_params.get("year")
         month = request.query_params.get("month")
+        day = request.query_params.get("day")
 
         dashboard_objects = DashboardData.objects.all()
-        if hotel_id and period and year and month:
-            dashboard_objects = dashboard_objects.filter(
-                hotel_id=hotel_id, period=period, year=year, month=month
-            )
+        if hotel_id:
+            dashboard_objects = dashboard_objects.filter(hotel_id=hotel_id)
+        if period:
+            dashboard_objects = dashboard_objects.filter(period=period)
+        if year:
+            dashboard_objects = dashboard_objects.filter(year=year)
+        if month:
+            dashboard_objects = dashboard_objects.filter(month=month)
+        if day and period == "day":  # Ensure 'day' is considered only for 'day' period
+            dashboard_objects = dashboard_objects.filter(day=day)
 
         serializer = DashboardDataSerializer(dashboard_objects, many=True)
         return response.Response(serializer.data)

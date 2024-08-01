@@ -17,9 +17,7 @@ def simulate_event_creation():
     Periodic task to simulate the creation of booking and cancellation events from CSV data,
     ensuring events are sent in chronological order.
     """
-    base_url = os.getenv(
-        "EVENTS_API_BASE_URL", "http://127.0.0.1:8000/api/data_provider"
-    )
+    base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")
     if not base_url:
         logger.error("EVENTS_API_BASE_URL is not configured.")
         raise ValueError("EVENTS_API_BASE_URL is not set")

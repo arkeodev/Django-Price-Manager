@@ -45,9 +45,7 @@ def update_dashboard_data():
     Update or create daily and monthly dashboard entries from new events.
     """
     try:
-        base_url = os.getenv(
-            "EVENTS_API_BASE_URL", "http://127.0.0.1:8000/api/data_provider"
-        )
+        base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")
         last_timestamp = get_initial_timestamp()
         logger.info(f"Fetching events from {last_timestamp}")
 

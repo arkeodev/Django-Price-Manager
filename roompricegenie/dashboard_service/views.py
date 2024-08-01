@@ -1,6 +1,8 @@
+from django.db.models import Sum
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, response
+from rest_framework import generics, response, status
+from rest_framework.exceptions import ValidationError
 
 from .models import DashboardData
 from .serializers import DashboardDataSerializer
@@ -30,18 +32,24 @@ class DashboardView(generics.ListAPIView):
                 in_=openapi.IN_QUERY,
                 description="Year of the data to retrieve",
                 type=openapi.TYPE_INTEGER,
+                minimum=1950,
+                maximum=2050,
             ),
             openapi.Parameter(
                 "month",
                 in_=openapi.IN_QUERY,
                 description="Month of the data to retrieve, required if period is 'month'",
                 type=openapi.TYPE_INTEGER,
+                minimum=1,
+                maximum=12,
             ),
             openapi.Parameter(
                 "day",
                 in_=openapi.IN_QUERY,
                 description="Day of the data to retrieve, optional, only relevant if period is 'day'",
                 type=openapi.TYPE_INTEGER,
+                minimum=1,
+                maximum=31,
                 required=False,
             ),
         ],
@@ -52,6 +60,20 @@ class DashboardView(generics.ListAPIView):
         year = request.query_params.get("year")
         month = request.query_params.get("month")
         day = request.query_params.get("day")
+
+        # Validate year, month, and day within the view
+        try:
+            if year and (int(year) < 1950 or int(year) > 2050):
+                raise ValidationError("Year must be between 1950 and 2050.")
+            if month and (int(month) < 1 or int(month) > 12):
+                raise ValidationError("Month must be between 1 and 12.")
+            if day and (int(day) < 1 or int(day) > 31):
+                raise ValidationError("Day must be between 1 and 31.")
+        except ValueError:
+            return response.Response(
+                {"error": "Invalid input for date parameters"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         dashboard_objects = DashboardData.objects.all()
         if hotel_id:

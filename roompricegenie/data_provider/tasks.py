@@ -8,7 +8,7 @@ from django.conf import settings
 
 logger = logging.getLogger("data_provider")
 
-DATA_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "data.csv")
+DATA_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "data_1.csv")
 
 
 @shared_task
@@ -26,6 +26,7 @@ def simulate_event_creation():
 
     try:
         data = pd.read_csv(DATA_FILE_PATH)
+        logging.info(f"The number of rows in the CSV data: {len(data)}")
         data.sort_values(by="event_timestamp", ascending=True, inplace=True)
 
         invalid_rows = []

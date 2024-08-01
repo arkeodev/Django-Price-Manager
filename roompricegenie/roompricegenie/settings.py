@@ -160,7 +160,7 @@ LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
-            "level": "INFO",
+            "level": "INFO",  # Set this to INFO to restrict logs on console
         },
         "file": {
             "class": "logging.FileHandler",
@@ -178,22 +178,18 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "django_file"],
-            "level": "DEBUG",
+            "level": "INFO",  # Adjusted to show INFO level logs
+            "propagate": False,  # Prevent logging the same log record multiple times
         },
         "django.db.backends": {
             "handlers": ["django_file"],
-            "level": "DEBUG",
+            "level": "INFO",  # Adjust this as needed
             "propagate": False,
-        },
-        "data_provider": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
-            "propagate": True,
         },
         "celery": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
-            "propagate": True,
+            "level": "INFO",  # Ensure that Celery logs at INFO level
+            "propagate": False,  # Stop propagation to prevent duplicate logs
         },
     },
 }

@@ -12,13 +12,13 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    "simulate-event-creation-every-10-seconds": {
+    "simulate-event-creation-every-5-seconds": {
         "task": "data_provider.tasks.simulate_event_creation",
-        "schedule": schedule(5.0),  # Every 10 sec
+        "schedule": schedule(5.0),  # Every 5 sec
     },
-    "update-dashboard-data-every-1-minute": {
+    "update-dashboard-data-every-20-second": {
         "task": "dashboard_service.tasks.update_dashboard_data",
-        "schedule": schedule(20.0),  # Every 1 min
+        "schedule": schedule(20.0),  # Every 20 sec
     },
 }
 

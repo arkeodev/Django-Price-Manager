@@ -21,6 +21,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework.permissions import AllowAny
 
+from roompricegenie.views import api_root
+
 schema_view = get_schema_view(
     openapi.Info(
         title="RoomPriceGenie API",
@@ -32,6 +34,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path("", api_root, name="api-root"),
     path("admin/", admin.site.urls),
     path("", include("data_provider.urls")),
     path("", include("dashboard_service.urls")),

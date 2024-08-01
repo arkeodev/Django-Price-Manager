@@ -1,3 +1,7 @@
+import logging
+
+from django.forms import ValidationError
+from django.utils.dateparse import parse_date, parse_datetime
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
@@ -5,6 +9,8 @@ from rest_framework.response import Response
 
 from .models import Event
 from .serializers import EventSerializer
+
+logger = logging.getLogger("celery")
 
 
 class EventView(generics.ListCreateAPIView):
@@ -64,29 +70,58 @@ class EventView(generics.ListCreateAPIView):
         ],
     )
     def get(self, request, *args, **kwargs):
+        # Retrieve all parameters
         hotel_id = request.query_params.get("hotel_id")
-        updated_gte = request.query_params.get("updated__gte")
-        updated_lte = request.query_params.get("updated__lte")
         rpg_status = request.query_params.get("rpg_status")
         room_reservation_id = request.query_params.get("room_reservation_id")
-        night_of_stay_gte = request.query_params.get("night_of_stay__gte")
-        night_of_stay_lte = request.query_params.get("night_of_stay__lte")
+        updated_gte = request.query_params.get("updated_gte")
+        updated_lte = request.query_params.get("updated_lte")
+        night_of_stay_gte = request.query_params.get("night_of_stay_gte")
+        night_of_stay_lte = request.query_params.get("night_of_stay_lte")
 
+        # Start with all events
         events = Event.objects.all()
+
+        # Apply filters conditionally
         if hotel_id:
             events = events.filter(hotel_id=hotel_id)
-        if updated_gte:
-            events = events.filter(timestamp__gte=updated_gte)
-        if updated_lte:
-            events = events.filter(timestamp__lte=updated_lte)
         if rpg_status:
             events = events.filter(rpg_status=rpg_status)
         if room_reservation_id:
             events = events.filter(room_reservation_id=room_reservation_id)
+        # Parsing datetime fields
+        if updated_gte:
+            try:
+                parsed_date_gte = parse_datetime(updated_gte)
+                if parsed_date_gte:
+                    events = events.filter(timestamp__gte=parsed_date_gte)
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        if updated_lte:
+            try:
+                parsed_date_lte = parse_datetime(updated_lte)
+                if parsed_date_lte:
+                    events = events.filter(timestamp__lte=parsed_date_lte)
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Parsing date fields
         if night_of_stay_gte:
-            events = events.filter(night_of_stay__gte=night_of_stay_gte)
+            try:
+                parsed_night_gte = parse_date(night_of_stay_gte)
+                if parsed_night_gte:
+                    events = events.filter(night_of_stay__gte=parsed_night_gte)
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         if night_of_stay_lte:
-            events = events.filter(night_of_stay__lte=night_of_stay_lte)
+            try:
+                parsed_night_lte = parse_date(night_of_stay_lte)
+                if parsed_night_lte:
+                    events = events.filter(night_of_stay__lte=parsed_night_lte)
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         events = events.order_by("timestamp")
         serializer = EventSerializer(events, many=True)

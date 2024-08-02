@@ -166,3 +166,9 @@ volumes/
 
 # VS Code
 .vscode/
+
+# sqlite3 files
+**/.sqlite3
+
+# log files
+**/.log

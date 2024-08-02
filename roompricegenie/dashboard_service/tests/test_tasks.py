@@ -7,7 +7,7 @@ from dashboard_service.models import DashboardData
 from dashboard_service.tasks import update_dashboard_data
 
 
-@pytest.mark.django_db(databases=["default", "dashboard_service"])
+@pytest.mark.django_db(databases=["default", "dashboard_service", "data_provider"])
 @patch("requests.get")
 def test_update_dashboard_data(mock_get):
     current_year = datetime.now().year
@@ -15,8 +15,8 @@ def test_update_dashboard_data(mock_get):
         {
             "id": 1,
             "hotel_id": 1,
-            "timestamp": f"{current_year}-01-01T00:00:00Z",
-            "rpg_status": 1,
+            "event_timestamp": f"{current_year}-01-01T00:00:00Z",
+            "status": 1,
             "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360",
             "night_of_stay": f"{current_year}-01-01",
         }

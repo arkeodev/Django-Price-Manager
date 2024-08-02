@@ -1,7 +1,12 @@
+from typing import List
+
 from django.urls import path
+from django.urls.resolvers import URLPattern
 
 from .views import EventView
 
-urlpatterns = [
+# Define the URL patterns for the Event related views.
+urlpatterns: List[URLPattern] = [
+    # Endpoint for accessing and manipulating event data via the EventView.
     path("events/", EventView.as_view(), name="events"),
 ]

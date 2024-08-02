@@ -28,7 +28,7 @@ def test_dashboard_view(mock_get):
         hotel_id=1, period="month", year=2020, month=1, booking_count=10
     )
     response = client.get(
-        "/api/dashboard_service/dashboard/",
+        "/dashboard/",
         {"hotel_id": 1, "period": "month", "year": 2020},
     )
     assert response.status_code == 200

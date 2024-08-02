@@ -5,30 +5,58 @@ from django.db import models
 
 class Event(models.Model):
     """
-    Model representing an event in a hotel booking system.
+    A Django model that represents an event in a hotel booking system.
 
     Attributes:
-    - id: Primary key for the event.
-    - hotel_id: ID of the hotel where the event occurred.
-    - timestamp: Timestamp of the event.
-    - rpg_status: Status of the event (1 for booking, 2 for cancellation).
-    - room_reservation_id: UUID of the room associated with the event.
-    - night_of_stay: Date of stay for the booking event.
+        id (AutoField): The primary key for the event.
+        hotel_id (IntegerField): The ID of the hotel where the event occurred.
+        timestamp (DateTimeField): The exact date and time when the event was recorded.
+        rpg_status (IntegerField): Represents the status of the event, distinguishing between booking and cancellation.
+        room_reservation_id (UUIDField): The UUID of the room reservation associated with the event.
+        night_of_stay (DateField): The specific date of stay associated with the event.
+
+    Constants:
+        BOOKING (int): Constant value representing a booking event.
+        CANCELLATION (int): Constant value representing a cancellation event.
+
+    Choices:
+        RPG_STATUS_CHOICES (list of tuples): Defines permissible choices for the `rpg_status` field.
     """
 
+    # Defining constants for readability and maintainability of event status
     BOOKING = 1
     CANCELLATION = 2
+
+    # Choices for the RPG status field to ensure database integrity
     RPG_STATUS_CHOICES = [
         (BOOKING, "Booking"),
         (CANCELLATION, "Cancellation"),
     ]
 
+    # Model fields
     id = models.AutoField(primary_key=True)
-    hotel_id = models.IntegerField()
-    timestamp = models.DateTimeField()
-    rpg_status = models.IntegerField(choices=RPG_STATUS_CHOICES)
-    room_reservation_id = models.UUIDField(default=uuid.uuid4)
-    night_of_stay = models.DateField()
+    hotel_id = models.IntegerField(
+        help_text="The ID of the hotel where the event took place."
+    )
+    timestamp = models.DateTimeField(
+        help_text="The date and time when the event was recorded."
+    )
+    rpg_status = models.IntegerField(
+        choices=RPG_STATUS_CHOICES,
+        help_text="The status of the event, either booking or cancellation.",
+    )
+    room_reservation_id = models.UUIDField(
+        default=uuid.uuid4, help_text="A unique identifier for the room reservation."
+    )
+    night_of_stay = models.DateField(
+        help_text="The date of stay for which the event is booked or canceled."
+    )
 
     def __str__(self) -> str:
+        """
+        Returns a human-readable string representation of the model instance.
+
+        Returns:
+            str: A string describing the event, including its ID and associated hotel ID.
+        """
         return f"Event {self.id} - Hotel {self.hotel_id}"

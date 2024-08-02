@@ -8,8 +8,8 @@ from data_provider.serializers import EventSerializer
 def test_event_serializer():
     data = {
         "hotel_id": 1,
-        "timestamp": "2020-01-01T00:00:00Z",
-        "rpg_status": 1,
+        "event_timestamp": "2020-01-01T00:00:00Z",
+        "status": 1,
         "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360",
         "night_of_stay": "2020-01-01",
     }
@@ -19,7 +19,7 @@ def test_event_serializer():
     assert event.hotel_id == 1
 
     invalid_data = data.copy()
-    invalid_data["rpg_status"] = 3  # Invalid status
+    invalid_data["status"] = 3  # Invalid status
     serializer = EventSerializer(data=invalid_data)
     with pytest.raises(ValidationError):
         serializer.is_valid(raise_exception=True)

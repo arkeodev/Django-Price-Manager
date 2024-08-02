@@ -1,3 +1,10 @@
+"""
+Celery configuration module for the RoomPriceGenie project.
+
+This module sets up Celery, a distributed task queue, with the settings and tasks defined
+for the RoomPriceGenie Django project.
+"""
+
 from __future__ import absolute_import, unicode_literals
 
 import os

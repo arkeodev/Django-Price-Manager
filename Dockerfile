@@ -17,9 +17,6 @@ RUN poetry config virtualenvs.create false \
 # Copy the rest of the application code to the container
 COPY . /app
 
-# Copy the Gunicorn configuration file
-COPY gunicorn.conf.py /app/
-
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 

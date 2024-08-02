@@ -6,9 +6,9 @@ import requests
 from celery import shared_task
 from django.conf import settings
 
-logger = logging.getLogger("data_provider")
+logger = logging.getLogger("celery")
 
-DATA_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "data_1.csv")
+DATA_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "data.csv")
 
 
 @shared_task

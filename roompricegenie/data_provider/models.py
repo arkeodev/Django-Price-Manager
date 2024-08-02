@@ -1,3 +1,9 @@
+"""
+Module defining the Event model for the RoomPriceGenie project.
+
+This module contains the Event model which represents events in a hotel booking system.
+"""
+
 import uuid
 
 from django.db import models
@@ -24,31 +30,31 @@ class Event(models.Model):
     """
 
     # Defining constants for readability and maintainability of event status
-    BOOKING = 1
-    CANCELLATION = 2
+    BOOKING: int = 1
+    CANCELLATION: int = 2
 
     # Choices for the RPG status field to ensure database integrity
-    RPG_STATUS_CHOICES = [
+    RPG_STATUS_CHOICES: list[tuple[int, str]] = [
         (BOOKING, "Booking"),
         (CANCELLATION, "Cancellation"),
     ]
 
     # Model fields
-    id = models.AutoField(primary_key=True)
-    hotel_id = models.IntegerField(
+    id: int = models.AutoField(primary_key=True)
+    hotel_id: int = models.IntegerField(
         help_text="The ID of the hotel where the event took place."
     )
-    timestamp = models.DateTimeField(
+    timestamp: str = models.DateTimeField(
         help_text="The date and time when the event was recorded."
     )
-    rpg_status = models.IntegerField(
+    rpg_status: int = models.IntegerField(
         choices=RPG_STATUS_CHOICES,
         help_text="The status of the event, either booking or cancellation.",
     )
-    room_reservation_id = models.UUIDField(
+    room_reservation_id: str = models.UUIDField(
         default=uuid.uuid4, help_text="A unique identifier for the room reservation."
     )
-    night_of_stay = models.DateField(
+    night_of_stay: str = models.DateField(
         help_text="The date of stay for which the event is booked or canceled."
     )
 

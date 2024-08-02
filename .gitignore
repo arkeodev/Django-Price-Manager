@@ -174,3 +174,6 @@ volumes/
 
 # log files
 *.log
+
+# invalid rows
+**/invalid_rows.csv

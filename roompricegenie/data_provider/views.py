@@ -1,5 +1,8 @@
 """
 Event views module for handling Event-related HTTP requests and responses.
+
+This module contains the views to handle GET and POST requests for Event objects,
+including filtering and validation logic for query parameters.
 """
 
 import logging
@@ -16,12 +19,16 @@ from rest_framework.response import Response
 from .models import Event
 from .serializers import EventSerializer
 
+# Setting up logger for data provider
 logger = logging.getLogger("data_provider")
 
 
 class EventView(generics.ListCreateAPIView):
     """
     View to handle GET and POST requests for Event objects.
+
+    This view supports filtering Event objects based on various query parameters
+    and provides validation for these parameters.
     """
 
     serializer_class = EventSerializer
@@ -82,6 +89,12 @@ class EventView(generics.ListCreateAPIView):
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Handles GET requests to retrieve events based on query parameters.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response containing the filtered events.
         """
         hotel_id = request.query_params.get("hotel_id")
         rpg_status = request.query_params.get("rpg_status")
@@ -136,6 +149,7 @@ class EventView(generics.ListCreateAPIView):
             except ValidationError as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Order events by timestamp
         events = events.order_by("timestamp")
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
@@ -147,6 +161,12 @@ class EventView(generics.ListCreateAPIView):
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Handles POST requests to create a new event.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response containing the created event data or errors.
         """
         serializer = EventSerializer(data=request.data)
         if serializer.is_valid():

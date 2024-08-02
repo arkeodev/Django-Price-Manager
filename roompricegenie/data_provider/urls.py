@@ -1,3 +1,9 @@
+"""
+URL configuration module for the Event application.
+
+This module defines the URL patterns for accessing and manipulating Event-related views.
+"""
+
 from typing import List
 
 from django.urls import path

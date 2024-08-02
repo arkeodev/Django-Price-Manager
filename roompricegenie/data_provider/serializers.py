@@ -1,3 +1,13 @@
+"""
+Serializer module for Event model.
+
+This module contains the serializer class for the Event model which is responsible for
+transforming model instances into JSON format and validating incoming data against the
+model's definition before saving.
+"""
+
+from typing import Any, Dict
+
 from rest_framework import serializers
 
 from .models import Event
@@ -15,6 +25,7 @@ class EventSerializer(serializers.ModelSerializer):
     Meta:
         model (Model): The model class that this serializer will serialize.
         fields (list of str): Specifies the fields to be included in the serialized output.
+        read_only_fields (list of str): Specifies the fields that should be read-only.
     """
 
     # Field redefinitions to provide more meaningful key names in the API output
@@ -33,15 +44,15 @@ class EventSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id"]  # Making 'id' field read-only for additional safety
 
-    def validate(self, data: dict) -> dict:
+    def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validate incoming data to ensure it conforms to logical constraints beyond the model's field validations.
 
         Args:
-            data (dict): The incoming data to validate.
+            data (Dict[str, Any]): The incoming data to validate.
 
         Returns:
-            dict: The validated data, potentially with modifications.
+            Dict[str, Any]: The validated data, potentially with modifications.
 
         Raises:
             serializers.ValidationError: If any constraints are violated.

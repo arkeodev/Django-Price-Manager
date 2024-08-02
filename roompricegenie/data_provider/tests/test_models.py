@@ -1,4 +1,5 @@
 import pytest
+
 from data_provider.models import Event
 
 

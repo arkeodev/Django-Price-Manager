@@ -1,6 +1,7 @@
 import pytest
-from data_provider.serializers import EventSerializer
 from rest_framework.exceptions import ValidationError
+
+from data_provider.serializers import EventSerializer
 
 
 @pytest.mark.django_db(databases=["default", "data_provider"])

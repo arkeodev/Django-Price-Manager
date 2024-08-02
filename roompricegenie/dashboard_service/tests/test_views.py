@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
 import pytest
-from dashboard_service.models import DashboardData
 from rest_framework.test import APIClient
+
+from dashboard_service.models import DashboardData
 
 
 @pytest.mark.django_db(databases=["default", "dashboard_service"])

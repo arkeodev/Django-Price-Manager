@@ -1,23 +1,35 @@
+"""
+Module for updating dashboard data using Celery.
+
+This module defines tasks and helper functions to update or create daily and monthly
+dashboard entries from new events fetched via an API.
+"""
+
 import logging
 import os
 from datetime import datetime
+from typing import Optional
 
 import requests
 from celery import shared_task
-from data_provider.models import Event
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Sum
 from django.utils.timezone import get_current_timezone, make_aware
+
+from data_provider.models import Event
 
 from .models import DashboardData
 
 logger = logging.getLogger("dashboard_service")
 
 
-def get_initial_timestamp():
+def get_initial_timestamp() -> str:
     """
     Retrieve the earliest timestamp or a default if none exists, using cache to optimize.
+
+    Returns:
+        str: The earliest timestamp as an ISO formatted string.
     """
     try:
         initial_timestamp = cache.get("last_processed_timestamp")
@@ -39,9 +51,12 @@ def get_initial_timestamp():
 
 
 @shared_task
-def update_dashboard_data():
+def update_dashboard_data() -> None:
     """
     Update or create daily and monthly dashboard entries from new events.
+
+    This task fetches new events from the API based on the last processed timestamp,
+    processes each event, and updates the dashboard data accordingly.
     """
     try:
         base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")
@@ -83,9 +98,14 @@ def update_dashboard_data():
         logger.error(f"Unhandled error in update_dashboard_data: {str(e)}")
 
 
-def update_dashboard(date, event, period):
+def update_dashboard(date: datetime, event: dict, period: str) -> None:
     """
     Helper function to update or create dashboard data for a given period.
+
+    Args:
+        date (datetime): The date of the event.
+        event (dict): The event data.
+        period (str): The period to update ("day" or "month").
     """
     try:
         filter_kwargs = {

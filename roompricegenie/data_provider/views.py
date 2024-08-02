@@ -1,19 +1,29 @@
+"""
+Event views module for handling Event-related HTTP requests and responses.
+"""
+
 import logging
+from typing import Any, Dict
 
 from django.forms import ValidationError
 from django.utils.dateparse import parse_date, parse_datetime
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from .models import Event
 from .serializers import EventSerializer
 
-logger = logging.getLogger("celery")
+logger = logging.getLogger("data_provider")
 
 
 class EventView(generics.ListCreateAPIView):
+    """
+    View to handle GET and POST requests for Event objects.
+    """
+
     serializer_class = EventSerializer
 
     @swagger_auto_schema(
@@ -69,8 +79,10 @@ class EventView(generics.ListCreateAPIView):
             ),
         ],
     )
-    def get(self, request, *args, **kwargs):
-        # Retrieve all parameters
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Handles GET requests to retrieve events based on query parameters.
+        """
         hotel_id = request.query_params.get("hotel_id")
         rpg_status = request.query_params.get("rpg_status")
         room_reservation_id = request.query_params.get("room_reservation_id")
@@ -89,6 +101,7 @@ class EventView(generics.ListCreateAPIView):
             events = events.filter(rpg_status=rpg_status)
         if room_reservation_id:
             events = events.filter(room_reservation_id=room_reservation_id)
+
         # Parsing datetime fields
         if updated_gte:
             try:
@@ -128,9 +141,13 @@ class EventView(generics.ListCreateAPIView):
         return Response(serializer.data)
 
     @swagger_auto_schema(
-        operation_description="Create a new event", request_body=EventSerializer
+        operation_description="Create a new event",
+        request_body=EventSerializer,
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Handles POST requests to create a new event.
+        """
         serializer = EventSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

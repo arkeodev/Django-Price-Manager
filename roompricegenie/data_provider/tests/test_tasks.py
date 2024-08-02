@@ -2,7 +2,6 @@ from unittest.mock import patch
 
 import pytest
 import requests
-
 from data_provider.tasks import simulate_event_creation
 
 

@@ -16,8 +16,8 @@ The Data Provider is a service that provides booking and cancellation events hap
 {
   "id": 1,
   "hotel_id": 1,
-  "timestamp": "2020-01-01T00:00:00Z",
-  "rpg_status": 1, // 1 - booking, 2 - cancellation
+  "event_timestamp": "2020-01-01T00:00:00Z",
+  "status": 1, // 1 - booking, 2 - cancellation
   "room_id": 1,
   "night_of_stay": "2020-01-01"
 }
@@ -65,9 +65,100 @@ The Dashboard Service should provide the following endpoints:
 
 ---
 
+## Solution
+
+RoomPriceGenie is designed as a comprehensive Django-based application that automates and optimizes room pricing strategies by leveraging real-time data processing and a responsive dashboard interface. Below is an overview of the key components and their roles within the system:
+
+### Main Components
+
+- **RoomPriceGenie Core**:
+  - **Django ASGI & WSGI**: Configurations for asynchronous and synchronous web servers.
+  - **Celery**: Used for handling asynchronous task queues to manage long-running processes without blocking the main server.
+  - **Routers**: Defines URL route handlers that direct incoming requests to appropriate views.
+  - **Settings**: Contains all configuration settings for the Django project, including database configurations, third-party apps, and middleware settings.
+  - **URLs & Views**: Define the logic and endpoints for user interactions and API responses.
+
+- **Dashboard Service**:
+  - **Models**: Includes the `DashboardData` table, which stores metrics and statistics for display on the dashboard.
+  - **Serializers**: Handle the conversion of model instances to JSON for API responses.
+  - **Tasks**: Asynchronous tasks, such as the generation of dashboard metrics, are scheduled and executed.
+  - **Admin**: Django admin configurations for managing dashboard data through a graphical interface.
+  - **Tests**: Unit tests to ensure the reliability and integrity of dashboard functionalities.
+
+- **Data Provider**:
+  - **Management Commands**: Scripts to load external CSV data into a Redis queue, facilitating quick and efficient data handling.
+  - **Models**: Contains the `Event` table to log and track data events processed by the system.
+  - **Tasks**: Background tasks for loading events from the Redis queue into the database.
+  - **Tests**: Comprehensive tests to validate data integrity and the correct functioning of data processing workflows.
+
+### Infrastructure
+
+- **Docker**: Utilizes Docker containers to encapsulate the application environment, ensuring consistency across different development and production setups.
+- **Gunicorn**: Serves as the WSGI HTTP Server to run Python web applications from a Docker container, particularly suited for handling concurrent requests.
+- **Poetry**: Manages dependencies and packages, providing a reproducible environment and simplifying package management and deployment.
+
+### Setup and Deployment
+
+- **Environment Setup**: Utilize the `.env` file to configure necessary environment variables such as database URLs, API keys, and other sensitive configurations. 
+- **Docker Compose**: Simplifies the deployment of multi-container Docker applications, allowing each component of RoomPriceGenie to be launched with predefined settings.
+
+### Static and Templates
+
+- **Static**: Serves static files for the **root api** frontend.
+
+---
+
 ## Project Structure
 
-![Project Structure](image.png)
+```
+RoomPriceGenie/
+│
+├── .env                    # Environment variables for the project
+├── gunicorn.conf.py        # Gunicorn configuration for Django
+├── manage.py               # Django's command-line utility for administrative tasks
+├── docker-compose.yml      # Docker configuration file
+├── LICENSE                 # Project license
+├── poetry.lock             # Poetry package versions lockfile
+├── pyproject.toml          # Poetry configuration file
+├── pytest.ini              # Pytest configuration file
+├── README.md               # The file you are reading
+│
+├── roompricegenie/         # Main Django project directory
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── celery.py
+│   ├── routers.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── views.py
+│   └── wsgi.py
+│
+├── dashboard_service/      # Dashboard service module
+│   ├── migrations/         # dashboard_service db migrations
+│   ├── tests/              # Dashboard service unit tests
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── serializers.py
+│   ├── tasks.py            # dashboard service generation task
+│   ├── urls.py
+│   └── views.py
+│
+├── data_provider/          # data provider module
+│   ├── management/         # data provider commands
+│   ├── migrations/         # data_provider db migrations
+│   ├── tests/              # Data provider unit tests
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── serializers.py
+│   ├── tasks.py            # data provider event loading tasks
+│   ├── urls.py
+│   └── views.py
+│
+├── static/                 # Static files for the web application
+└── templates/              # Django templates directory
+```
 
 ---
 
@@ -226,28 +317,40 @@ cd roompricegenie
 ```
 
 ```sh
-poetry run python manage.py migrate --database=default
 poetry run python manage.py migrate --database=data_provider
 poetry run python manage.py migrate --database=dashboard_service
 ```
 
 ### Running the Application
 
-You'll need three different terminals for this process:
+You'll need four different terminals for this process:
 
 1. **Terminal 1: Running the app with Gunicorn**
+   This command starts the gunicorn server.
     ```sh
     poetry run gunicorn roompricegenie.wsgi:application --bind 0.0.0.0:8000
+   ```
+2. **Terminal 3: Running Celery event processing task worker**
+    This command starts the Celery event processing
+    ```sh
+    poetry run celery -A roompricegenie worker -l info -c 3
     ```
 
-2. **Terminal 2: Running Celery beat**
+3. **Terminal 3: Running Celery dashboard generation task worker**
+   This command starts the Celery dashboard generation task.
+    ```sh
+    celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
+    ```
+
+4. **Terminal 2: Running Celery beat**
+   This first command is pushing all the data into a Redis queue.
+    ```sh
+    poetry run python manage.py trigger_load_events
+    ```
+
+   This second command starts the periodic tasks.
     ```sh
     poetry run celery -A roompricegenie beat -l info
-    ```
-
-3. **Terminal 3: Running Celery worker**
-    ```sh
-    poetry run celery -A roompricegenie worker -l info
     ```
 
 ---
@@ -263,10 +366,11 @@ You'll need three different terminals for this process:
    - `data_provider/tests/test_models.py`: Tests for Data Provider models.
    - `data_provider/tests/test_serializers.py`: Tests for Data Provider serializers.
    - `data_provider/tests/test_views.py`: Tests for Data Provider views.
+   - `dashboard_service/tests/test_tasks.py`: Tests for Data Provider generation periodic tasks with mocking.
    - `dashboard_service/tests/test_models.py`: Tests for Dashboard Service models.
    - `dashboard_service/tests/test_serializers.py`: Tests for Dashboard Service serializers.
    - `dashboard_service/tests/test_views.py`: Tests for Dashboard Service views.
-   - `dashboard_service/tests/test_tasks.py`: Tests for periodic tasks with mocking.
+   - `dashboard_service/tests/test_tasks.py`: Tests for Dashboard periodic tasks with mocking.
 
 ### Mocking External Services
 

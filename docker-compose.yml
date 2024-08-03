@@ -20,7 +20,20 @@ services:
 
   celery:
     build: .
-    command: celery -A roompricegenie worker --loglevel=info -c 1
+    command: celery -A roompricegenie worker -l info -c 3
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    working_dir: /app/roompricegenie
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - EVENTS_API_BASE_URL=http://web:8000
+
+  celery-update:
+    build: .
+    command: celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
     depends_on:
       - redis
     volumes:

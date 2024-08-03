@@ -33,7 +33,7 @@ app.conf.beat_schedule = {
     },
     "process-event-from-queue": {
         "task": "data_provider.tasks.process_event_from_queue",
-        "schedule": timedelta(seconds=1),  # Run every 1 second
+        "schedule": timedelta(seconds=5),  # Run every 5 seconds
     },
 }
 

@@ -63,7 +63,7 @@ def update_dashboard_data() -> None:
                         )
                         update_dashboard(date, event, "day")
                         update_dashboard(date, event, "month")
-                        logger.info(f"Dashboard updated for {date}")
+                        logger.debug(f"Dashboard updated for {date}")
                         new_last_timestamp = max(
                             new_last_timestamp, event["event_timestamp"]
                         )
@@ -110,7 +110,7 @@ def update_dashboard(date: datetime, event: dict, period: str) -> None:
             defaults={"booking_count": updated_count}, **filter_kwargs
         )
         record_type = "created" if created else "updated"
-        logger.info(
+        logger.debug(
             f"{record_type.capitalize()} {period} record for {filter_kwargs} with updated count {updated_count}"
         )
     except Exception as e:

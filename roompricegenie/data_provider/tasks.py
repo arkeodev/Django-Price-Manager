@@ -14,10 +14,11 @@ import os
 import redis
 import requests
 from celery import shared_task
+from django.conf import settings
 
 logger = logging.getLogger("roompricegenie")
 
-r = redis.Redis(host="127.0.0.1", port=6379, db=0)  # Configure as needed
+r = redis.Redis.from_url(settings.CELERY_BROKER_URL)
 queue_key = "event_queue"
 
 

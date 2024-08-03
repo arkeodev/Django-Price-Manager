@@ -1,29 +1,42 @@
+"""
+This module implements functionality to load event data from a CSV file into a Redis queue. It handles the validation
+of UUIDs in the data, segregates valid and invalid records, and facilitates the enqueuing of validated events for
+further processing. The module integrates with Django's command infrastructure to allow manual triggering of the
+event loading process through management commands. It is designed to work with Celery for task scheduling and Redis
+for queue management.
+"""
+
 import json
 import logging
 import os
 import uuid
+from typing import NoReturn
 
 import pandas as pd
 import redis
-import requests
-from celery import shared_task
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+# Configure logger
 logger = logging.getLogger("roompricegenie")
 
 # Constants for file paths
 DATA_FILE_PATH: str = os.path.join(os.path.dirname(__file__), "data", "data.csv")
 
+# Configure Redis connection
+r = redis.Redis.from_url(settings.CELERY_BROKER_URL)
+queue_key = "event_queue"
+
 
 def is_valid_uuid(value: str) -> bool:
     """
-    Validate whether a given string is a valid UUID.
+    Validate whether the provided string is a valid UUID.
 
     Args:
-        value (str): The string to validate as UUID.
+        value (str): The string to be validated.
 
     Returns:
-        bool: True if the string is a valid UUID, False otherwise.
+        bool: True if the string is a valid UUID, otherwise False.
     """
     try:
         uuid.UUID(str(value))
@@ -32,14 +45,17 @@ def is_valid_uuid(value: str) -> bool:
         return False
 
 
-r = redis.Redis(host="127.0.0.1", port=6379, db=0)  # Configure as needed
-queue_key = "event_queue"
-
-
 class Command(BaseCommand):
+    """
+    Django management command to trigger the loading of events into a Redis queue.
+    """
+
     help = "Triggers the load_events_to_queue Celery task"
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> NoReturn:
+        """
+        Executes the management command which triggers the Celery task to load events.
+        """
         try:
             load_events_to_queue()
             self.stdout.write(
@@ -49,26 +65,23 @@ class Command(BaseCommand):
             raise CommandError(f"Error triggering task: {e}")
 
 
-def load_events_to_queue():
+def load_events_to_queue() -> NoReturn:
     """
-    Task to load events from a CSV file, validate the UUIDs, and enqueue them for processing.
-    Invalid rows are saved to a separate CSV file.
+    Load events from a CSV file, validate UUIDs, and enqueue valid events for processing.
+    It also logs and saves any invalid rows to a separate CSV file for further investigation.
     """
-
     data = pd.read_csv(DATA_FILE_PATH)
     logger.info(f"Read {len(data)} rows from CSV file.")
 
-    # Apply UUID validation and store results in a new column
+    # Apply UUID validation and separate valid from invalid data
     data["is_valid_uuid"] = data["room_reservation_id"].apply(is_valid_uuid)
-
-    # Separate valid and invalid data based on the new column
     valid_data = data[data["is_valid_uuid"]].copy()
     invalid_rows = data[~data["is_valid_uuid"]].copy()
 
-    # Sort data by the event timestamp in ascending order
+    # Sort valid data by event timestamp in ascending order
     valid_data.sort_values(by="event_timestamp", ascending=True, inplace=True)
 
-    # Log and save invalid rows to a CSV file if any exist
+    # Log and save invalid rows if present
     if not invalid_rows.empty:
         invalid_csv_file_path = os.path.join(
             os.path.dirname(__file__), "data", "invalid_rows.csv"
@@ -80,7 +93,7 @@ def load_events_to_queue():
 
     logger.info(f"Filtered data to {len(valid_data)} rows with valid UUIDs.")
 
-    # Push each valid event into the Redis queue
+    # Enqueue valid events into the Redis queue
     for _, row in valid_data.iterrows():
         r.rpush(queue_key, json.dumps(row.to_dict()))
     logger.info(f"Enqueued {len(valid_data)} events to Redis.")

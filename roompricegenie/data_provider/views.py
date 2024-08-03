@@ -6,7 +6,7 @@ including filtering and validation logic for query parameters.
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from django.forms import ValidationError
 from django.utils.dateparse import parse_date, parse_datetime
@@ -19,8 +19,7 @@ from rest_framework.response import Response
 from .models import Event
 from .serializers import EventSerializer
 
-# Setting up logger for data provider
-logger = logging.getLogger("data_provider")
+logger = logging.getLogger("roompricegenie")
 
 
 class EventView(generics.ListCreateAPIView):
@@ -121,7 +120,11 @@ class EventView(generics.ListCreateAPIView):
                 parsed_date_gte = parse_datetime(updated_gte)
                 if parsed_date_gte:
                     events = events.filter(timestamp__gte=parsed_date_gte)
+                    logger.info(
+                        f"Filtering events updated after or at: {parsed_date_gte}"
+                    )
             except ValidationError as e:
+                logger.error(f"Error parsing date: {str(e)}")
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if updated_lte:

@@ -193,6 +193,11 @@ LOGGING = {
             "level": "INFO",  # Ensure that Celery logs at INFO level
             "propagate": False,  # Stop propagation to prevent duplicate logs
         },
+        "roompricegenie": {
+            "handlers": ["console", "file"],
+            "level": "INFO",  # Adjust this as needed
+            "propagate": False,
+        },
     },
 }
 
@@ -218,6 +223,6 @@ else:
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Environment Configuration
+# Celery configuration
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0")

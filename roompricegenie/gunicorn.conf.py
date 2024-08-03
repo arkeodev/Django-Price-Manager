@@ -2,7 +2,7 @@
 timeout = 300
 
 # Number of worker processes for handling requests
-workers = 1
+workers = 3
 
 # Worker class
 worker_class = "sync"

@@ -4,7 +4,6 @@ Module for handling dashboard views in the RoomPriceGenie project.
 This module defines the views for retrieving dashboard data for specific hotels.
 """
 
-from django.db.models import Sum
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, response, status

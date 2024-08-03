@@ -1,4 +1,5 @@
 import pytest
+
 from dashboard_service.serializers import DashboardDataSerializer
 
 

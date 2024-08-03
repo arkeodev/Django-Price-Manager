@@ -8,48 +8,28 @@ dashboard entries from new events fetched via an API.
 import logging
 import os
 from datetime import datetime
-from typing import Optional
 
 import requests
 from celery import shared_task
-from data_provider.models import Event
-from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Sum
 from django.utils.timezone import get_current_timezone, make_aware
 
+from data_provider.models import Event
+
 from .models import DashboardData
 
-logger = logging.getLogger("dashboard_service")
+logger = logging.getLogger(__name__)
 
 
-def get_initial_timestamp() -> str:
+def get_latest_timestamp():
     """
-    Retrieve the earliest timestamp or a default if none exists, using cache to optimize.
-
-    Returns:
-        str: The earliest timestamp as an ISO formatted string.
+    Retrieve the latest timestamp from the cache or use a fallback.
     """
-    try:
-        initial_timestamp = cache.get("last_processed_timestamp")
-        if initial_timestamp is None:
-            earliest_event = Event.objects.order_by("timestamp").first()
-            if earliest_event:
-                initial_timestamp = earliest_event.timestamp.isoformat()
-                logger.info(f"Earliest event timestamp found: {initial_timestamp}")
-            else:
-                initial_timestamp = datetime(2020, 1, 1).isoformat()
-                logger.info(
-                    "No events found, setting initial timestamp to the start of 2020."
-                )
-            cache.set("last_processed_timestamp", initial_timestamp, timeout=None)
-        return initial_timestamp
-    except Exception as e:
-        logger.error(f"Failed to retrieve initial timestamp: {str(e)}")
-        return datetime(2020, 1, 1).isoformat()  # Fallback timestamp
+    return cache.get("last_event_timestamp") or datetime(2020, 1, 1).isoformat()
 
 
-@shared_task
+@shared_task()
 def update_dashboard_data() -> None:
     """
     Update or create daily and monthly dashboard entries from new events.
@@ -58,37 +38,41 @@ def update_dashboard_data() -> None:
     processes each event, and updates the dashboard data accordingly.
     """
     try:
+        logger.info("Updating dashboard data...")
         base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")
-        last_timestamp = get_initial_timestamp()
+        last_timestamp = get_latest_timestamp()
+        new_last_timestamp = last_timestamp  # Initialize new_last_timestamp here
         logger.info(f"Fetching events from {last_timestamp}")
 
-        response = requests.get(
-            f"{base_url}/events/", params={"from_timestamp": last_timestamp}
-        )
+        params = {"updated_gte": last_timestamp}
+        response = requests.get(f"{base_url}/events/", params=params)
         if response.status_code == 200:
             events = response.json()
             logger.info(f"Received {len(events)} events from the API")
 
-            new_last_timestamp = last_timestamp
-            for event in events:
-                try:
-                    date = make_aware(
-                        datetime.strptime(
-                            event["event_timestamp"], "%Y-%m-%dT%H:%M:%SZ"
-                        ),
-                        timezone=get_current_timezone(),
-                    )
-                    update_dashboard(date, event, "day")
-                    update_dashboard(date, event, "month")
-                    new_last_timestamp = max(
-                        new_last_timestamp, event["event_timestamp"]
-                    )
-                except Exception as e:
-                    logger.error(f"Error processing event {event['id']}: {str(e)}")
-                    continue
-
-            cache.set("last_processed_timestamp", new_last_timestamp)
-            logger.info(f"Dashboard updated up to {new_last_timestamp}")
+            if events:
+                latest_timestamp = max(event["event_timestamp"] for event in events)
+                cache.set("last_event_timestamp", latest_timestamp)
+                for event in events:
+                    try:
+                        date = make_aware(
+                            datetime.strptime(
+                                event["event_timestamp"], "%Y-%m-%dT%H:%M:%SZ"
+                            ),
+                            timezone=get_current_timezone(),
+                        )
+                        update_dashboard(date, event, "day")
+                        update_dashboard(date, event, "month")
+                        logger.info(f"Dashboard updated for {date}")
+                        new_last_timestamp = max(
+                            new_last_timestamp, event["event_timestamp"]
+                        )
+                    except Exception as e:
+                        logger.error(f"Error processing event {event['id']}: {str(e)}")
+                        continue
+                else:
+                    logger.info("No events to process")
+                logger.info(f"New timestamp is: {new_last_timestamp}")
         else:
             logger.error(
                 f"Failed to fetch events: {response.status_code} - {response.text}"

@@ -1,18 +1,27 @@
-from unittest.mock import patch
+import json
+import os
+from unittest.mock import MagicMock, patch
 
 import pytest
-import requests
 
-from data_provider.tasks import simulate_event_creation
+from data_provider.tasks import process_event
 
 
-@pytest.mark.django_db(databases=["default", "data_provider"])
+@pytest.mark.django_db(databases=["data_provider"])
 @patch("requests.post")
-def test_simulate_event_creation(mock_post):
-    mock_post.return_value.status_code = 201
+@patch("redis.Redis.lpop")
+def test_process_event_from_queue(mock_redis_lpop, mock_post):
+    event_data_json = json.dumps(
+        {"id": "1234", "event_timestamp": "2021-08-01T00:00:00Z"}
+    )
+    mock_post.return_value = MagicMock(status_code=201)
+    mock_post.return_value.raise_for_status = MagicMock()
 
-    simulate_event_creation()
+    # When
+    process_event(event_data_json)
 
-    # Check for logging or any other assertions related to your task
-    # This depends on what exactly you want to assert in your task
-    assert mock_post.called
+    base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000") + "/events/"
+    # Check if requests.post was called with the correct URL and data
+    mock_post.assert_called_once_with(
+        base_url, json={"id": "1234", "event_timestamp": "2021-08-01T00:00:00Z"}
+    )

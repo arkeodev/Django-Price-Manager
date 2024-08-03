@@ -26,22 +26,27 @@ queue_key = "event_queue"
 def process_event_from_queue():
     """
     Dequeue events from Redis and process them by posting to the data_provider database.
+    This task continuously polls the queue for new events.
     """
     while True:
-        # Non-blocking pop from Redis queue
-        logger.info("Reading event from Redis...")
         event_data_json = r.lpop(queue_key)
-        logger.info(f"Event data: {event_data_json}")
         if event_data_json is None:
             break
+        process_event(event_data_json)
 
-        event_data = json.loads(event_data_json)
-        try:
-            base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")
-            response = requests.post(f"{base_url}/events/", json=event_data)
-            response.raise_for_status()
-            logger.info(f"Event {event_data.get('id', 'Unknown')} successfully posted.")
-        except requests.exceptions.RequestException as e:
-            logger.error(
-                f"Failed to post event {event_data.get('id', 'Unknown')}: {str(e)}"
-            )
+
+def process_event(event_data_json):
+    """
+    Process a single event by posting it to the data_provider database.
+    """
+    logger.info("Processing event...")
+    event_data = json.loads(event_data_json)
+    try:
+        base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")
+        response = requests.post(f"{base_url}/events/", json=event_data)
+        response.raise_for_status()
+        logger.info(f"Event {event_data.get('id', 'Unknown')} successfully posted.")
+    except requests.exceptions.RequestException as e:
+        logger.error(
+            f"Failed to post event {event_data.get('id', 'Unknown')}: {str(e)}"
+        )

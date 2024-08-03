@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from data_provider.serializers import EventSerializer
 
 
-@pytest.mark.django_db(databases=["default", "data_provider"])
+@pytest.mark.django_db(databases=["data_provider"])
 def test_event_serializer():
     data = {
         "hotel_id": 1,

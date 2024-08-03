@@ -3,7 +3,7 @@ import pytest
 from data_provider.models import Event
 
 
-@pytest.mark.django_db(databases=["default", "data_provider"])
+@pytest.mark.django_db(databases=["data_provider"])
 def test_event_creation():
     event = Event.objects.create(
         hotel_id=1,

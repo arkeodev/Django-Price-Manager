@@ -7,7 +7,7 @@ from dashboard_service.models import DashboardData
 from dashboard_service.tasks import update_dashboard_data
 
 
-@pytest.mark.django_db(databases=["default", "dashboard_service", "data_provider"])
+@pytest.mark.django_db(databases=["dashboard_service", "data_provider"])
 @patch("requests.get")
 def test_update_dashboard_data(mock_get):
     current_year = datetime.now().year

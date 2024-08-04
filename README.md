@@ -188,7 +188,17 @@ To ensure `celery` and `celery-beat` start only after the `web` service is fully
 
 Here's a step-by-step guide, including test API calls for each endpoint:
 
-### 1. Build Docker Containers
+### 1. Cloning the Repository
+
+First, clone the GitHub repository to your local machine:
+
+```sh
+git clone https://github.com/arkeodev/roompricegenie.git
+
+cd roompricegenie
+```
+
+### 2. Build Docker Containers
 
 Build the Docker containers:
 
@@ -196,7 +206,7 @@ Build the Docker containers:
 docker-compose build
 ```
 
-### 2. Start Redis and Web Service
+### 3. Start Redis and Web Service
 
 Start the Redis and Web service containers (but not the Celery containers yet):
 
@@ -204,7 +214,7 @@ Start the Redis and Web service containers (but not the Celery containers yet):
 docker-compose up -d redis web
 ```
 
-### 3. Apply Migrations
+### 4. Apply Migrations
 
 Run migrations for the `data_provider` database:
 
@@ -218,7 +228,7 @@ Run migrations for the `dashboard_service` database:
 docker-compose run web bash -c "poetry run python manage.py migrate --database=dashboard_service"
 ```
 
-### 4. Run Tests
+### 5. Run Tests
 
 Run the tests using `pytest`:
 
@@ -226,7 +236,7 @@ Run the tests using `pytest`:
 docker-compose run web bash -c "poetry run pytest"
 ```
 
-### 5. Start Celery Workers
+### 6. Start Celery Workers
 
 Once the databases are set up, start the Celery workers in the order below and beat service. 
 
@@ -250,17 +260,17 @@ Start the Celery beat service:
 docker-compose up -d celery-beat
 ```
 
-### 6. Access the Application
+### 7. Access the Application
 
 [Access the application root page from a browser](http://localhost:8000)
 
 [Access the Swagger documentation page from a browser](http://localhost:8000/swagger/)
 
-### 7. Test API Calls
+### 8. Test API Calls
 
 Test API calls to verify that the services are working correctly.
 
-#### Test Event API (3 sample calls):
+#### Test Event API:
 
 ```sh
 curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2019-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2019-01-01"}'
@@ -268,7 +278,7 @@ curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -
 curl -X GET http://localhost:8000/events/?hotel_id=1
 ```
 
-#### Test Dashboard API (3 sample calls):
+#### Test Dashboard API:
 
 ```sh
 curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=day&year=2019&month=1&day=1
@@ -279,7 +289,7 @@ curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=month&year=2019&m
 
 ## Local Installation and Usage
 
-### Cloning the Repository
+### 1. Cloning the Repository
 
 First, clone the GitHub repository to your local machine:
 
@@ -289,7 +299,7 @@ git clone https://github.com/arkeodev/roompricegenie.git
 cd roompricegenie
 ```
 
-### Preparing the Environment
+### 2. Preparing the Environment
 
 Ensure you have [Poetry](https://python-poetry.org/) installed for dependency management. Then, install the dependencies:
 
@@ -297,7 +307,7 @@ Ensure you have [Poetry](https://python-poetry.org/) installed for dependency ma
 poetry install
 ```
 
-### Preparing the Databases
+### 3. Preparing the Databases
 
 Run the following commands to prepare your databases:\
 
@@ -310,7 +320,7 @@ poetry run python manage.py migrate --database=data_provider
 poetry run python manage.py migrate --database=dashboard_service
 ```
 
-### Running the Application
+### 4. Running the Application
 
 You'll need four different terminals for this process:
 

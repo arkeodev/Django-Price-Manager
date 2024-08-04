@@ -233,8 +233,10 @@ In swagger you can test the the **Dashboard API**
 First, clone the GitHub repository to your local machine:
 
 ```sh
-git clone https://github.com/arkeodev/roompricegenie.git
+git clone git@github.com:arkeodev/roompricegenie.git
+```
 
+```sh
 cd roompricegenie
 ```
 

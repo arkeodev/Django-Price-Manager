@@ -29,7 +29,9 @@ def process_event_from_queue():
     This task continuously polls the queue for new events.
     """
     while True:
+        logger.info("Waiting for new events...")
         event_data_json = r.lpop(queue_key)
+        logger.info("Event data is: %s", event_data_json)
         if event_data_json is None:
             break
         process_event(event_data_json)
@@ -39,7 +41,7 @@ def process_event(event_data_json):
     """
     Process a single event by posting it to the data_provider database.
     """
-    logger.info("Processing event...")
+    logger.debug("Processing event...")
     event_data = json.loads(event_data_json)
     try:
         base_url = os.getenv("EVENTS_API_BASE_URL", "http://127.0.0.1:8000")

@@ -269,7 +269,7 @@ Test API calls to verify that the services are working correctly.
 #### Test Event API (3 sample calls):
 
 ```sh
-curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "timestamp": "2023-01-01T00:00:00Z", "rpg_status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2023-01-01"}'
+curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2023-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2023-01-01"}'
 
 curl -X GET http://localhost:8000/events/?hotel_id=1
 
@@ -339,7 +339,7 @@ You'll need four different terminals for this process:
 3. **Terminal 3: Running Celery dashboard generation task worker**
    This command starts the Celery dashboard generation task.
     ```sh
-    celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
+    poetry run celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
     ```
 
 4. **Terminal 2: Running Celery beat**

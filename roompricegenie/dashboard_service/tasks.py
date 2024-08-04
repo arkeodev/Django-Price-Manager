@@ -44,7 +44,7 @@ def update_dashboard_data() -> None:
         new_last_timestamp = last_timestamp  # Initialize new_last_timestamp here
         logger.info(f"Fetching events from {last_timestamp}")
 
-        params = {"updated_gte": last_timestamp}
+        params = {"updated_gt": last_timestamp}
         response = requests.get(f"{base_url}/events/", params=params)
         if response.status_code == 200:
             events = response.json()
@@ -110,7 +110,7 @@ def update_dashboard(date: datetime, event: dict, period: str) -> None:
             defaults={"booking_count": updated_count}, **filter_kwargs
         )
         record_type = "created" if created else "updated"
-        logger.debug(
+        logger.info(
             f"{record_type.capitalize()} {period} record for {filter_kwargs} with updated count {updated_count}"
         )
     except Exception as e:

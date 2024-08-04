@@ -49,6 +49,13 @@ class EventView(generics.ListCreateAPIView):
                 format=openapi.FORMAT_DATETIME,
             ),
             openapi.Parameter(
+                "updated_gt",
+                openapi.IN_QUERY,
+                description="Events updated after this date",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_DATETIME,
+            ),
+            openapi.Parameter(
                 "updated_lte",
                 openapi.IN_QUERY,
                 description="Events updated before or at this date",
@@ -99,6 +106,7 @@ class EventView(generics.ListCreateAPIView):
         rpg_status = request.query_params.get("rpg_status")
         room_reservation_id = request.query_params.get("room_reservation_id")
         updated_gte = request.query_params.get("updated_gte")
+        updated_gt = request.query_params.get("updated_gt")
         updated_lte = request.query_params.get("updated_lte")
         night_of_stay_gte = request.query_params.get("night_of_stay_gte")
         night_of_stay_lte = request.query_params.get("night_of_stay_lte")
@@ -126,6 +134,19 @@ class EventView(generics.ListCreateAPIView):
             except ValidationError as e:
                 logger.error(f"Error parsing date: {str(e)}")
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # This parameter added for the dashboard update task.     
+        if updated_gt:
+            try:
+                parsed_date_gt = parse_datetime(updated_gt)
+                if parsed_date_gt:
+                    events = events.filter(timestamp__gt=parsed_date_gt)
+                    logger.info(
+                        f"Filtering events updated after: {parsed_date_gt}"
+                    )
+            except ValidationError as e:
+                logger.error(f"Error parsing date: {str(e)}")
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST) 
 
         if updated_lte:
             try:

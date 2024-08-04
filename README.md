@@ -178,7 +178,21 @@ Run the tests using `pytest`:
 docker-compose run web bash -c "poetry run pytest"
 ```
 
-### 6. Start Celery Workers
+### 6. Test Event API
+
+Test Event API to verify that the service is working correctly. 
+
+Check that I'm using year 2019 in the below call, because incoming data from the data.csv file is greater than this year and it allows us to run the tasks.
+
+```sh
+curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2019-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2019-01-01"}'
+```
+
+```sh
+curl -X GET http://localhost:8000/events/?hotel_id=1
+```
+
+### 7. Start Celery Workers
 
 Once the databases are set up, start the Celery workers in the order below and beat service. 
 
@@ -202,35 +216,13 @@ Start the Celery beat service:
 docker-compose up -d celery-beat
 ```
 
-### 7. Access the Application
+### 8. Access the Application
 
 [Access the application root page from a browser](http://localhost:8000)
 
 [Access the Swagger documentation page from a browser](http://localhost:8000/swagger/)
 
-### 8. Test API Calls
-
-Test API calls to verify that the services are working correctly.
-
-#### Test Event API:
-
-```sh
-curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2019-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2019-01-01"}'
-```
-
-```sh
-curl -X GET http://localhost:8000/events/?hotel_id=1
-```
-
-#### Test Dashboard API:
-
-```sh
-curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=day&year=2019&month=1&day=1
-```
-
-```sh
-curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=month&year=2019&month=1
-```
+In swagger you can test the the **Dashboard API**
 
 ---
 

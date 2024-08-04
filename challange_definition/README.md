@@ -1,4 +1,4 @@
-# RoomPriceGenie Task №1
+# RoomPriceGenie
 
 ## Task description
 

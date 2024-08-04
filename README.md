@@ -206,12 +206,6 @@ docker-compose up -d redis web
 
 ### 3. Apply Migrations
 
-Run migrations for the `default` database:
-
-```sh
-docker-compose run web bash -c "poetry run python manage.py migrate --database=default"
-```
-
 Run migrations for the `data_provider` database:
 
 ```sh
@@ -234,33 +228,33 @@ docker-compose run web bash -c "poetry run pytest"
 
 ### 5. Start Celery Workers
 
-Once the databases are set up, start the Celery workers and beat service:
+Once the databases are set up, start the Celery workers in the order below and beat service. 
 
-Start the Celery worker:
-
+Start the Celery event processing task worker:
 ```sh
 docker-compose up -d celery
 ```
 
-Start the Celery beat service:
+Start the Celery dashboard generation task worker:
+```sh
+docker-compose up -d celery-update
+```
 
+This command is pushing all the data into a Redis queue.
+```sh
+docker-compose run  bash -c "poetry run python manage.py trigger_load_events"
+```
+
+Start the Celery beat service:
 ```sh
 docker-compose up -d celery-beat
 ```
 
 ### 6. Access the Application
 
-Access the application root page:
+[Access the application root page from a browser](http://localhost:8000)
 
-```sh
-curl http://localhost:8000
-```
-
-Access the Swagger documentation page:
-
-```sh
-curl http://localhost:8000/swagger/
-```
+[Access the Swagger documentation page from a browser](http://localhost:8000/swagger/)
 
 ### 7. Test API Calls
 
@@ -269,23 +263,18 @@ Test API calls to verify that the services are working correctly.
 #### Test Event API (3 sample calls):
 
 ```sh
-curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2023-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2023-01-01"}'
+curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2019-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2019-01-01"}'
 
 curl -X GET http://localhost:8000/events/?hotel_id=1
-
-curl -X GET http://localhost:8000/events/?hotel_id=1&updated_gte=2023-01-01T00:00:00Z
 ```
 
 #### Test Dashboard API (3 sample calls):
 
 ```sh
-curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=day&year=2023&month=1&day=1
+curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=day&year=2019&month=1&day=1
 
-curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=month&year=2023&month=1
-
-curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=day&year=2023&month=1
+curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=month&year=2019&month=1
 ```
-
 ---
 
 ## Local Installation and Usage
@@ -355,7 +344,7 @@ You'll need four different terminals for this process:
 
 ---
 
-## Running Tests
+## Running Unit Tests
 
 1. **Run All Tests**:
    ```sh
@@ -375,17 +364,3 @@ You'll need four different terminals for this process:
 ### Mocking External Services
 
 Mocking is used in tests to simulate external service interactions, ensuring tests run in isolation and are not dependent on external systems. We use the `unittest.mock` module to mock HTTP requests in the tests for the Dashboard Service.
-
----
-
-## Swagger Documentation
-
-### Accessing Swagger UI
-
-1. **Ensure the Server is Running**:
-   ```sh
-   poetry run python manage.py runserver
-   ```
-
-2. **Access Swagger UI**:
-   Visit [http://127.0.0.1:8000/swagger/](http://127.0.0.1:8000/swagger/) in your browser to view the API documentation.

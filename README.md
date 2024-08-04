@@ -268,7 +268,7 @@ You'll need four different terminals for this process:
     ```sh
     poetry run gunicorn roompricegenie.wsgi:application --bind 0.0.0.0:8000
    ```
-2. **Terminal 3: Running Celery event processing task worker**
+2. **Terminal 2: Running Celery event processing task worker**
     This command starts the Celery event processing
     ```sh
     poetry run celery -A roompricegenie worker -l info -c 3
@@ -280,7 +280,7 @@ You'll need four different terminals for this process:
     poetry run celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
     ```
 
-4. **Terminal 2: Running Celery beat**
+4. **Terminal 4: Running Celery beat**
    This first command is pushing all the data into a Redis queue.
     ```sh
     poetry run python manage.py trigger_load_events

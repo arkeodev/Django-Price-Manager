@@ -1,4 +1,3 @@
-```markdown
 # RoomPriceGenie Task №1
 
 ## Task description
@@ -60,4 +59,3 @@ The Dashboard Service should provide the following endpoints:
 
 ## Data
 You can find the sample data for the Data Provider [here](https://drive.google.com/file/d/14yZfUxcsNsHMxXS-b9ZKNWwKUpv9Wfk6/view?usp=sharing)
-```

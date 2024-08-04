@@ -10,7 +10,6 @@ import json
 import logging
 import os
 import uuid
-from typing import NoReturn
 
 import pandas as pd
 import redis
@@ -52,7 +51,7 @@ class Command(BaseCommand):
 
     help = "Triggers the load_events_to_queue Celery task"
 
-    def handle(self, *args, **options) -> NoReturn:
+    def handle(self, *args, **options) -> None:
         """
         Executes the management command which triggers the Celery task to load events.
         """
@@ -65,7 +64,7 @@ class Command(BaseCommand):
             raise CommandError(f"Error triggering task: {e}")
 
 
-def load_events_to_queue() -> NoReturn:
+def load_events_to_queue() -> None:
     """
     Load events from a CSV file, validate UUIDs, and enqueue valid events for processing.
     It also logs and saves any invalid rows to a separate CSV file for further investigation.

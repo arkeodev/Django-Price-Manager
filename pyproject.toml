@@ -19,16 +19,23 @@ requests-mock = "^1.12.1"
 python-dotenv = "^1.0.1"
 whitenoise = "^6.7.0"
 flower = "^2.0.1"
+pre-commit = "^3.8.0"
 
 [tool.poetry.group.dev.dependencies]
-isort = "^5.13.2"
-black = "^24.4.2"
-mypy = "^1.11.0"
-
+isort = "^5.10.1"
+black = "^24.8.0"
+mypy = "^1.11.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.2"
 pytest-django = "^4.8.0"
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core"]

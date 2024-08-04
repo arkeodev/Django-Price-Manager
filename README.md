@@ -254,7 +254,7 @@ docker-compose up -d celery-update
 
 This command is pushing all the data into a Redis queue.
 ```sh
-docker-compose run  bash -c "poetry run python manage.py trigger_load_events"
+docker-compose run web bash -c "poetry run python manage.py trigger_load_events"
 ```
 
 Start the Celery beat service:
@@ -276,7 +276,9 @@ Test API calls to verify that the services are working correctly.
 
 ```sh
 curl -X POST http://localhost:8000/events/ -H "Content-Type: application/json" -d '{"hotel_id": 1, "event_timestamp": "2019-01-01T00:00:00Z", "status": 1, "room_reservation_id": "0013e338-0158-4d5c-8698-aebe00cba360", "night_of_stay": "2019-01-01"}'
+```
 
+```sh
 curl -X GET http://localhost:8000/events/?hotel_id=1
 ```
 
@@ -284,9 +286,12 @@ curl -X GET http://localhost:8000/events/?hotel_id=1
 
 ```sh
 curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=day&year=2019&month=1&day=1
+```
 
+```sh
 curl -X GET http://localhost:8000/dashboard/?hotel_id=1&period=month&year=2019&month=1
 ```
+
 ---
 
 ## Local Installation and Usage

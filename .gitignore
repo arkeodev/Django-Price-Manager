@@ -171,6 +171,7 @@ volumes/
 *.sqlite3
 *.sqlite
 *.db
+.sqlite3-journal
 
 # log files
 *.log

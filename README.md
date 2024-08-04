@@ -240,15 +240,7 @@ git clone git@github.com:arkeodev/roompricegenie.git
 cd roompricegenie
 ```
 
-### 2. Preparing the Environment
-
-Ensure you have [Poetry](https://python-poetry.org/) installed for dependency management. Then, install the dependencies:
-
-```sh
-poetry install
-```
-
-### 3. Preparing the Databases
+### 2. Preparing the Databases
 
 Run the following commands to prepare your databases:\
 
@@ -261,7 +253,7 @@ poetry run python manage.py migrate --database=data_provider
 poetry run python manage.py migrate --database=dashboard_service
 ```
 
-### 4. Running the Application
+### 3. Running the Application
 
 You'll need four different terminals for this process:
 

@@ -237,19 +237,18 @@ git clone git@github.com:arkeodev/roompricegenie.git
 ```
 
 ```sh
-cd roompricegenie
+cd roompricegenie/roompricegenie
 ```
 
 ### 2. Preparing the Databases
 
-Run the following commands to prepare your databases:\
-
-```sh
-cd roompricegenie
-```
+Run the following commands to prepare your databases:
 
 ```sh
 poetry run python manage.py migrate --database=data_provider
+```
+
+```sh
 poetry run python manage.py migrate --database=dashboard_service
 ```
 
@@ -275,12 +274,12 @@ You'll need four different terminals for this process:
     ```
 
 4. **Terminal 4: Running Celery beat**
-   This first command is pushing all the data into a Redis queue.
+   The first command is pushing all the data into a Redis queue.
     ```sh
     poetry run python manage.py trigger_load_events
     ```
 
-   This second command starts the periodic tasks.
+   The second command starts the periodic tasks.
     ```sh
     poetry run celery -A roompricegenie beat -l info
     ```

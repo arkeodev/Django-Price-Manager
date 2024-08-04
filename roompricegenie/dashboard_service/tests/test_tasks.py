@@ -2,7 +2,6 @@ from datetime import datetime
 from unittest.mock import patch
 
 import pytest
-
 from dashboard_service.models import DashboardData
 from dashboard_service.tasks import update_dashboard_data
 

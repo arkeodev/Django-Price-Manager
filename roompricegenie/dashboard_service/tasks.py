@@ -11,11 +11,10 @@ from datetime import datetime
 
 import requests
 from celery import shared_task
+from data_provider.models import Event
 from django.core.cache import cache
 from django.db.models import Sum
 from django.utils.timezone import get_current_timezone, make_aware
-
-from data_provider.models import Event
 
 from .models import DashboardData
 

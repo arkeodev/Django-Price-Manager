@@ -134,19 +134,17 @@ class EventView(generics.ListCreateAPIView):
             except ValidationError as e:
                 logger.error(f"Error parsing date: {str(e)}")
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # This parameter added for the dashboard update task.     
+
+        # This parameter added for the dashboard update task.
         if updated_gt:
             try:
                 parsed_date_gt = parse_datetime(updated_gt)
                 if parsed_date_gt:
                     events = events.filter(timestamp__gt=parsed_date_gt)
-                    logger.info(
-                        f"Filtering events updated after: {parsed_date_gt}"
-                    )
+                    logger.info(f"Filtering events updated after: {parsed_date_gt}")
             except ValidationError as e:
                 logger.error(f"Error parsing date: {str(e)}")
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST) 
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if updated_lte:
             try:

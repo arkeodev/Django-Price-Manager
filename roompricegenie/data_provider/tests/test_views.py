@@ -1,7 +1,6 @@
 import pytest
-from rest_framework.test import APIClient
-
 from data_provider.models import Event
+from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db(databases=["data_provider"])

@@ -3,7 +3,6 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from data_provider.tasks import process_event
 
 

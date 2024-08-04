@@ -193,8 +193,10 @@ Here's a step-by-step guide, including test API calls for each endpoint:
 First, clone the GitHub repository to your local machine:
 
 ```sh
-git clone https://github.com/arkeodev/roompricegenie.git
+git clone git@github.com:arkeodev/roompricegenie.git
+```
 
+```sh
 cd roompricegenie
 ```
 

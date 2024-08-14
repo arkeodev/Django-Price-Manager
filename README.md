@@ -1,17 +1,10 @@
-# RoomPriceGenie Assignment
+# Django Price Manager
 
-## Assignment Description
+This app is designed as a comprehensive Django-based application that automates and optimizes room pricing strategies by leveraging real-time data processing and a responsive dashboard interface. Below is an overview of the key components and their roles within the system:
 
-Please check the [challange_definition](./challange_definition) folder.
+## Main Components
 
-
-## Solution
-
-RoomPriceGenie is designed as a comprehensive Django-based application that automates and optimizes room pricing strategies by leveraging real-time data processing and a responsive dashboard interface. Below is an overview of the key components and their roles within the system:
-
-### Main Components
-
-- **RoomPriceGenie Core**:
+- **Core**:
   - **Django ASGI & WSGI**: Configurations for asynchronous and synchronous web servers.
   - **Celery**: Used for handling asynchronous task queues to manage long-running processes without blocking the main server.
   - **Routers**: Defines URL route handlers that direct incoming requests to appropriate views.
@@ -40,7 +33,7 @@ RoomPriceGenie is designed as a comprehensive Django-based application that auto
 ### Setup and Deployment
 
 - **Environment Setup**: Utilize the `.env` file to configure necessary environment variables such as database URLs, API keys, and other sensitive configurations. 
-- **Docker Compose**: Simplifies the deployment of multi-container Docker applications, allowing each component of RoomPriceGenie to be launched with predefined settings.
+- **Docker Compose**: Simplifies the deployment of multi-container Docker applications, allowing each component to be launched with predefined settings.
 
 ### Static and Templates
 
@@ -51,7 +44,7 @@ RoomPriceGenie is designed as a comprehensive Django-based application that auto
 ## Project Structure
 
 ```
-RoomPriceGenie/
+App/
 │
 ├── .env                    # Environment variables for the project
 ├── gunicorn.conf.py        # Gunicorn configuration for Django
@@ -63,7 +56,7 @@ RoomPriceGenie/
 ├── pytest.ini              # Pytest configuration file
 ├── README.md               # The file you are reading
 │
-├── roompricegenie/         # Main Django project directory
+├── app/         # Main Django project directory
 │   ├── __init__.py
 │   ├── asgi.py
 │   ├── celery.py
@@ -133,11 +126,11 @@ Here's a step-by-step guide, including test API calls for each endpoint:
 First, clone the GitHub repository to your local machine:
 
 ```sh
-git clone git@github.com:arkeodev/roompricegenie.git
+git clone git@github.com:arkeodev/django-price-manager.git
 ```
 
 ```sh
-cd roompricegenie
+cd django_price_manager
 ```
 
 ### 2. Build Docker Containers
@@ -233,11 +226,11 @@ In swagger you can test the the **Dashboard API**
 First, clone the GitHub repository to your local machine:
 
 ```sh
-git clone git@github.com:arkeodev/roompricegenie.git
+git clone git@github.com:arkeodev/django-proce-manager.git
 ```
 
 ```sh
-cd roompricegenie/roompricegenie
+cd django_price_manager/django_price_manager
 ```
 
 ### 2. Preparing the Databases
@@ -259,18 +252,18 @@ You'll need four different terminals for this process:
 1. **Terminal 1: Running the app with Gunicorn**
    This command starts the gunicorn server.
     ```sh
-    poetry run gunicorn roompricegenie.wsgi:application --bind 0.0.0.0:8000
+    poetry run gunicorn django_price_manager.wsgi:application --bind 0.0.0.0:8000
    ```
 2. **Terminal 2: Running Celery event processing task worker**
     This command starts the Celery event processing
     ```sh
-    poetry run celery -A roompricegenie worker -l info -c 3
+    poetry run celery -A django_price_manager worker -l info -c 3
     ```
 
 3. **Terminal 3: Running Celery dashboard generation task worker**
    This command starts the Celery dashboard generation task.
     ```sh
-    poetry run celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
+    poetry run celery -A django_price_manager worker -l info -Q dashboard_queue -c 1
     ```
 
 4. **Terminal 4: Running Celery beat**
@@ -281,7 +274,7 @@ You'll need four different terminals for this process:
 
    The second command starts the periodic tasks.
     ```sh
-    poetry run celery -A roompricegenie beat -l info
+    poetry run celery -A django_price_manager beat -l info
     ```
 
 ---

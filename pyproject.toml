@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "roompricegenie"
+name = "Django Price Manager"
 version = "0.1.0"
-description = "Booking curve analysis for RoomPriceGenie"
+description = "Booking curve analysis for Sjango Price Manager"
 authors = ["Kenan Agyel <kenanagyel@gmail.com>"]
 readme = "README.md"
 

@@ -21,4 +21,4 @@ COPY . /app
 EXPOSE 8000
 
 # Run the Django server using Gunicorn with the custom configuration
-CMD ["gunicorn", "roompricegenie.wsgi:application", "--config", "/roompricegenie/gunicorn.conf.py"]
+CMD ["gunicorn", "django_price_manager.wsgi:application", "--config", "/django_price_manager/gunicorn.conf.py"]

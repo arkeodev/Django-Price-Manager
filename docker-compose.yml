@@ -5,10 +5,10 @@ services:
 
   web:
     build: .
-    command: gunicorn roompricegenie.wsgi:application --config gunicorn.conf.py
+    command: gunicorn django_price_manager.wsgi:application --config gunicorn.conf.py
     volumes:
       - .:/app
-    working_dir: /app/roompricegenie
+    working_dir: /app/django_price_manager
     ports:
       - "8000:8000"
     depends_on:
@@ -20,12 +20,12 @@ services:
 
   celery:
     build: .
-    command: celery -A roompricegenie worker -l info -c 3
+    command: celery -A django_price_manager worker -l info -c 3
     depends_on:
       - redis
     volumes:
       - .:/app
-    working_dir: /app/roompricegenie
+    working_dir: /app/django_price_manager
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -33,12 +33,12 @@ services:
 
   celery-update:
     build: .
-    command: celery -A roompricegenie worker -l info -Q dashboard_queue -c 1
+    command: celery -A django_price_manager worker -l info -Q dashboard_queue -c 1
     depends_on:
       - redis
     volumes:
       - .:/app
-    working_dir: /app/roompricegenie
+    working_dir: /app/django_price_manager
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -46,12 +46,12 @@ services:
 
   celery-beat:
     build: .
-    command: celery -A roompricegenie beat --loglevel=info
+    command: celery -A django_price_manager beat --loglevel=info
     depends_on:
       - redis
     volumes:
       - .:/app
-    working_dir: /app/roompricegenie
+    working_dir: /app/django_price_manager
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
